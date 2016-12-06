@@ -13,12 +13,17 @@ use Metinet\RouteMatcher;
 use Metinet\ControllerResolver;
 use Metinet\Config\Configuration;
 use Metinet\Config\RoutesCsvLoader;
+use Metinet\Config\ChainLoader;
+use Metinet\Config\YamlLoader;
 
 $request = Request::createFromGlobals();
 
-$configuration = new Configuration(
-    new RoutesCsvLoader(__DIR__ . '/../config/routes.csv')
-);
+$loader = new ChainLoader([
+    new RoutesCsvLoader(__DIR__ . '/../config/routes.csv'),
+    new YamlLoader(__DIR__ . '/../config/config.yml'),
+]);
+
+$configuration = new Configuration($loader);
 $routes = [];
 foreach ($configuration->getSection('routes') as $route) {
     $routes[] = new Route($route['method'], $route['path'], $route['action']);
